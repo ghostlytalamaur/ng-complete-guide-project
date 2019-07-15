@@ -11,6 +11,14 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "es2015",
+    /* Raise error on expressions and declarations with an implied 'any' type. */
+    "noImplicitAny": true,
+    /* Enable strict null checks. */
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    /* Enable strict checking of property initialization in classes. */
+    "strictPropertyInitialization": false,
+
     "typeRoots": [
       "node_modules/@types"
     ],
