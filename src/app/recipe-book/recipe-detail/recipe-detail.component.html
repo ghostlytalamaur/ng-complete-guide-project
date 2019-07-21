@@ -1,1 +1,53 @@
-<p>recipe-detail works!</p>
+<ng-container *ngIf="recipe; else noRecipeTemplate">
+  <div class="row">
+    <div class="col-8">
+      <h1>{{ recipe.name }}</h1>
+    </div>
+    <div class="col-4">
+      <img
+        alt="{{ recipe.name }}"
+        class="img-fluid"
+        src="{{ recipe.imagePath }}">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <button [matMenuTriggerFor]="manageMenu"
+              class="dropdown-toggle"
+              mat-raised-button
+              type="button">Manage
+      </button>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-12">
+      {{ recipe.description }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <ul class="list-group">
+        <li
+          *ngFor="let ingredient of recipe.ingredients"
+          class="list-group-item"
+        >{{ ingredient.name }} ({{ ingredient.amount }})
+        </li>
+      </ul>
+    </div>
+  </div>
+</ng-container>
+
+<mat-menu #manageMenu>
+  <button (click)="onAddToShoppingList()" mat-menu-item>To Shopping List</button>
+  <button [routerLink]="['edit']" mat-menu-item>Edit Recipe</button>
+  <button mat-menu-item>Delete Recipe</button>
+</mat-menu>
+
+<ng-template #noRecipeTemplate>
+  <div class="row">
+    <div class="col-12">
+      <p><strong>Cannot retrieve recipe</strong></p>
+    </div>
+  </div>
+</ng-template>

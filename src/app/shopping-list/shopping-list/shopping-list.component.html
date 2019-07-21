@@ -1,1 +1,20 @@
-<p>shopping-list works!</p>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <app-shopping-list-edit
+        [(ingredient)]="selectedIngredient"
+      ></app-shopping-list-edit>
+      <hr>
+      <ul class="list-group">
+        <div
+          (click)="selectedIngredient = ingredient"
+          *ngFor="let ingredient of ingredients$ | async"
+          [ngClass]="{active: selectedIngredient === ingredient}"
+          class="list-group-item mouse-pointer"
+        >
+          <div>{{ ingredient.name }} ({{ ingredient.amount }})</div>
+        </div>
+      </ul>
+    </div>
+  </div>
+</div>

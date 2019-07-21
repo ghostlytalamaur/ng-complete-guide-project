@@ -1,1 +1,12 @@
-<p>recipe-list works!</p>
+<div class="row">
+  <div class="col">
+    <div class="list-group">
+      <app-recipe-item
+        *ngFor="let recipe of recipes$ | async; index as index"
+        [recipe]="recipe"
+        [routerLink]="[recipe.id]"
+        routerLinkActive="active"
+      ></app-recipe-item>
+    </div>
+  </div>
+</div>

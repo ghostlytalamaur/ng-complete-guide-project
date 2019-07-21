@@ -1,1 +1,72 @@
-<p>shopping-list-edit works!</p>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <form #frm="ngForm">
+
+        <div class="row">
+          <div class="col-md form-group">
+            <label for="name">Name</label>
+            <input
+              [(ngModel)]="ingredientName"
+              class="form-control"
+              id="name"
+              name="ingredientName"
+              required
+              type="text"
+            >
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="amount">Amount</label>
+            <input
+              #amount="ngModel"
+              [(ngModel)]="ingredientAmount"
+              class="form-control"
+              id="amount"
+              name="amount"
+              pattern="^[1-9]\d*$"
+              required
+              type="text"
+            >
+          </div>
+        </div>
+
+        <div *ngIf="!amount.valid">
+          Errors:
+          {{ amount.errors.pattern }}
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <button
+              (click)="addIngredient()"
+              [disabled]="!frm.valid"
+              class="m-1"
+              color="primary"
+              mat-raised-button
+              type="submit"
+            >Add
+            </button>
+            <button
+              (click)="deleteIngredient()"
+              [disabled]="!ingredient"
+              class="m-1"
+              color="accent"
+              mat-raised-button
+              type="button"
+            >Delete
+            </button>
+            <button
+              (click)="clearIngredient()"
+              class="m-1"
+              color="warn"
+              mat-raised-button
+              type="button"
+            >Clear
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,36 @@
-<p>header works!</p>
+<nav class="navbar navbar-expand-sm navbar-collapse navbar-dark bg-primary mb-3">
+  <a class="navbar-brand" mat-button routerLink="/">Recipe Book</a>
+
+  <button (click)="navbarCollapsed = !navbarCollapsed" class="navbar-toggler" type="button">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div [ngbCollapse]="navbarCollapsed" class="navbar-collapse">
+    <div class="navbar-nav mr-auto">
+      <a
+        class="nav-item nav-link"
+        routerLink="recipes"
+        routerLinkActive="active"
+      >Recipes</a>
+      <a
+        class="nav-item nav-link"
+        routerLink="shopping-list"
+        routerLinkActive="active"
+      >Shopping List</a>
+    </div>
+
+    <mat-menu #manageMenu>
+      <a class="nav-item nav-link" mat-menu-item>Save Data</a>
+      <a class="nav-item nav-link" mat-menu-item>Fetch Data</a>
+    </mat-menu>
+
+    <div class="navbar-nav">
+      <a
+        [matMenuTriggerFor]="manageMenu"
+        class="nav-item nav-link"
+      >Manage
+      </a>
+    </div>
+  </div>
+
+</nav>

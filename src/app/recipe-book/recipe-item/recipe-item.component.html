@@ -1,1 +1,13 @@
-<p>recipe-item works!</p>
+<div class="row">
+  <div class="col">
+    <h4>{{ recipe.name }}</h4>
+    <p>{{ recipe.description }}</p>
+  </div>
+  <div class="col-3 col-lg-2">
+    <img
+      alt="{{ recipe.name }}"
+      class="img-fluid"
+      src="{{ recipe.imagePath }}"
+    >
+  </div>
+</div>
