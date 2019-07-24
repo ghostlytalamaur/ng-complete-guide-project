@@ -41,7 +41,7 @@
 <mat-menu #manageMenu>
   <button (click)="onAddToShoppingList()" mat-menu-item>To Shopping List</button>
   <button [routerLink]="['edit']" mat-menu-item>Edit Recipe</button>
-  <button mat-menu-item>Delete Recipe</button>
+  <button mat-menu-item (click)="onDeleteRecipe()">Delete Recipe</button>
 </mat-menu>
 
 <ng-template #noRecipeTemplate>

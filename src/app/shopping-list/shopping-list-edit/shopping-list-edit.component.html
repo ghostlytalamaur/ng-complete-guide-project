@@ -1,13 +1,13 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <form #frm="ngForm">
+      <form #frm="ngForm" (ngSubmit)="addIngredient()">
 
         <div class="row">
           <div class="col-md form-group">
             <label for="name">Name</label>
             <input
-              [(ngModel)]="ingredientName"
+              ngModel
               class="form-control"
               id="name"
               name="ingredientName"
@@ -19,7 +19,7 @@
             <label for="amount">Amount</label>
             <input
               #amount="ngModel"
-              [(ngModel)]="ingredientAmount"
+              ngModel
               class="form-control"
               id="amount"
               name="amount"
@@ -38,13 +38,12 @@
         <div class="row">
           <div class="col">
             <button
-              (click)="addIngredient()"
               [disabled]="!frm.valid"
               class="m-1"
               color="primary"
               mat-raised-button
               type="submit"
-            >Add
+            >{{ ingredient ? 'Update' : 'Add' }}
             </button>
             <button
               (click)="deleteIngredient()"

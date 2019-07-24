@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Recipe } from '../models/recipe';
 import { RecipesService } from '../services/recipes.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
 
@@ -17,6 +17,7 @@ export class RecipeDetailComponent extends BaseComponent implements OnInit {
 
   constructor(
     private recipesService: RecipesService,
+    private router: Router,
     private route: ActivatedRoute
   ) {
     super();
@@ -36,6 +37,14 @@ export class RecipeDetailComponent extends BaseComponent implements OnInit {
   onAddToShoppingList(): void {
     if (this.recipe) {
       this.recipesService.addIngredientsToShoppingList(...this.recipe.ingredients);
+    }
+  }
+
+  onDeleteRecipe(): void {
+    if (this.recipe) {
+      this.recipesService.deleteRecipe(this.recipe);
+      this.router.navigate(['../'], {relativeTo: this.route})
+        .catch(console.log);
     }
   }
 }

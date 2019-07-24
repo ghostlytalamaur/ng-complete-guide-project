@@ -11,7 +11,14 @@
         class="nav-item nav-link"
         routerLink="recipes"
         routerLinkActive="active"
+        *ngIf="isAuthenticated"
       >Recipes</a>
+      <a
+        class="nav-item nav-link"
+        routerLink="auth"
+        routerLinkActive="active"
+        *ngIf="!isAuthenticated"
+      >Authenticate</a>
       <a
         class="nav-item nav-link"
         routerLink="shopping-list"
@@ -20,14 +27,20 @@
     </div>
 
     <mat-menu #manageMenu>
-      <a class="nav-item nav-link" mat-menu-item>Save Data</a>
-      <a class="nav-item nav-link" mat-menu-item>Fetch Data</a>
+      <a class="nav-item nav-link" mat-menu-item (click)="onSaveData()">Save Data</a>
+      <a class="nav-item nav-link" mat-menu-item (click)="onFetchData()">Fetch Data</a>
     </mat-menu>
 
     <div class="navbar-nav">
       <a
+        class="nav-item nav-link mouse-pointer"
+        *ngIf="isAuthenticated"
+        (click)="onLogout()"
+      >Logout</a>
+      <a
+        class="nav-item nav-link mouse-pointer"
         [matMenuTriggerFor]="manageMenu"
-        class="nav-item nav-link"
+        *ngIf="isAuthenticated"
       >Manage
       </a>
     </div>

@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import { ShoppingListEditComponent } from './shopping-list-edit/shopping-list-edit.component';
 import { MatButtonModule, MatInputModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
+import { ShoppingListRouterModule } from './shopping-list-router.module';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     FormsModule,
     MatButtonModule,
-    MatInputModule
+    MatInputModule,
+    ShoppingListRouterModule
   ]
 })
 export class ShoppingListModule { }

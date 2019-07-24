@@ -4,11 +4,12 @@ import { RecipeListComponent } from './recipe-list/recipe-list.component';
 import { RecipeItemComponent } from './recipe-item/recipe-item.component';
 import { RecipeDetailComponent } from './recipe-detail/recipe-detail.component';
 import { RecipesComponent } from './recipes/recipes.component';
-import { MatButtonModule, MatListModule, MatMenuModule } from '@angular/material';
+import { MatButtonModule, MatExpansionModule, MatInputModule, MatListModule, MatMenuModule } from '@angular/material';
 import { RecipesServiceModule } from './services/recipes-service.module';
 import { RecipeBookRouterModule } from './recipe-book-router.module';
 import { RecipeEditComponent } from './recipe-edit-component/recipe-edit.component';
 import { RecipeStartComponent } from './recipe-start/recipe-start.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -24,11 +25,14 @@ import { RecipeStartComponent } from './recipe-start/recipe-start.component';
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatButtonModule,
     MatListModule,
     MatMenuModule,
+    MatInputModule,
+    MatExpansionModule,
     RecipesServiceModule,
-    RecipeBookRouterModule
+    RecipeBookRouterModule,
   ]
 })
 export class RecipeBookModule {
