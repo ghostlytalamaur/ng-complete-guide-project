@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { findIngredient, Ingredient } from '../../shared/models/ingredient';
+import { Ingredient } from '../../shared/models/ingredient';
 import { IngredientsService } from '../services/ingredients.service';
 import { Observable } from 'rxjs';
-import { publishReplay, refCount, takeUntil } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
+import { Store } from '@ngrx/store';
+import { State } from '../store/shopping-list.reducer';
+import * as ShoppingListActions from '../store/shopping-list.actions';
+import * as fromRoot from '../../store/app.reducer';
 
 @Component({
   selector: 'app-shopping-list',
@@ -12,35 +16,29 @@ import { BaseComponent } from '../../shared/BaseComponent';
 })
 export class ShoppingListComponent extends BaseComponent implements OnInit {
 
-  ingredients$: Observable<Ingredient[]>;
-  private mSelectedIngredient: Ingredient | undefined;
+  ingredients$: Observable<State>;
+  selectedIngredientId: string | undefined;
 
   constructor(
-    private readonly ingredientsService: IngredientsService
+    private readonly ingredientsService: IngredientsService,
+    private store: Store<fromRoot.AppState>
   ) {
     super();
   }
 
-  get selectedIngredient(): Ingredient | undefined {
-    return this.mSelectedIngredient;
-  }
-
-  set selectedIngredient(value: Ingredient | undefined) {
-    console.log('[ShoppingListComponent] new ingredient', value);
-    this.mSelectedIngredient = value;
-  }
-
   ngOnInit(): void {
-    this.ingredients$ = this.ingredientsService.getIngredients()
-      .pipe(publishReplay(1), refCount())
-    ;
+    this.ingredients$ = this.store.select('shoppingList');
     this.ingredients$
-      .pipe(takeUntil(this.alive$))
-      .subscribe((values) => {
-        console.log('[ShoppingListComponent] new ingredient received');
-        if (this.mSelectedIngredient) {
-          this.selectedIngredient = findIngredient(values, this.mSelectedIngredient.name);
-        }
+      .pipe(
+        map(state => state.editedIngredientId),
+        takeUntil(this.alive$)
+      )
+      .subscribe(editedIngredientId => {
+        this.selectedIngredientId = editedIngredientId;
       });
+  }
+
+  onSelectIngredient(ingredient: Ingredient): void {
+    this.store.dispatch(new ShoppingListActions.StartEdit(ingredient));
   }
 }

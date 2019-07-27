@@ -11,6 +11,12 @@ import { ErrorPageComponent } from './error-page/error-page.component';
 import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from './shared/shared.module';
 import { CoreModule } from './core.module';
+import { StoreModule } from '@ngrx/store';
+import * as fromApp from './store/app.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { AuthEffects } from './auth/store/auth.effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -29,7 +35,21 @@ import { CoreModule } from './core.module';
 
     SharedModule,
     CoreModule,
-    AppRoutingModule
+    AppRoutingModule,
+    StoreModule.forRoot(fromApp.appReducer),
+    EffectsModule.forRoot([
+      AuthEffects
+    ]),
+    StoreDevtoolsModule.instrument({
+      logOnly: environment.production
+    })
+    // StoreModule.forRoot(reducers, {
+    //   metaReducers,
+    //   runtimeChecks: {
+    //     strictStateImmutability: true,
+    //     strictActionImmutability: true
+    //   }
+    // })
   ],
   bootstrap: [AppComponent]
 })

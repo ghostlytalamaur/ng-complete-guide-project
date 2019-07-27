@@ -1,19 +1,17 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <app-shopping-list-edit
-        [(ingredient)]="selectedIngredient"
-      ></app-shopping-list-edit>
+      <app-shopping-list-edit></app-shopping-list-edit>
       <hr>
       <ul class="list-group">
-        <div
-          (click)="selectedIngredient = ingredient"
-          *ngFor="let ingredient of ingredients$ | async"
-          [ngClass]="{active: selectedIngredient === ingredient}"
+        <li
           class="list-group-item mouse-pointer"
+          (click)="onSelectIngredient(ingredient)"
+          *ngFor="let ingredient of (ingredients$ | async).ingredients"
+          [ngClass]="{active: selectedIngredientId === ingredient.id}"
         >
           <div>{{ ingredient.name }} ({{ ingredient.amount }})</div>
-        </div>
+        </li>
       </ul>
     </div>
   </div>

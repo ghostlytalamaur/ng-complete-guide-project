@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { findIngredient, findIngredientIndex, Ingredient } from '../../shared/models/ingredient';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import * as uuid from 'uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,8 @@ import { map, tap } from 'rxjs/operators';
 export class IngredientsService {
 
   private readonly ingredients: Ingredient[] = [
-    new Ingredient('Cheese', 1),
-    new Ingredient('Bacon', 1)
+    new Ingredient(uuid.v4(), 'Cheese', 1),
+    new Ingredient(uuid.v4(), 'Bacon', 1)
   ];
   private readonly ingredients$: BehaviorSubject<Ingredient[]>;
 

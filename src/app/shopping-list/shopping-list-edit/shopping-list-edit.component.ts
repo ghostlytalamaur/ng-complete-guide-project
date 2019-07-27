@@ -1,34 +1,38 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { findIngredient, Ingredient } from '../../shared/models/ingredient';
 import { IngredientsService } from '../services/ingredients.service';
 import { LogMethod } from '../../shared/logger.decorator';
 import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
 import { NgForm } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import * as ShoppingListActions from '../store/shopping-list.actions';
+import * as uuid from 'uuid';
+import * as fromRoot from '../../store/app.reducer';
 
 @Component({
   selector: 'app-shopping-list-edit',
   templateUrl: './shopping-list-edit.component.html',
   styleUrls: ['./shopping-list-edit.component.scss']
 })
-export class ShoppingListEditComponent extends BaseComponent implements OnInit {
+export class ShoppingListEditComponent extends BaseComponent implements OnInit, OnDestroy {
 
   @ViewChild('frm', { static: false })
   form: NgForm;
 
-  @Output()
-  ingredientChange: EventEmitter<Ingredient | undefined> = new EventEmitter<Ingredient | undefined>();
+  // @Output()
+  // ingredientChange: EventEmitter<Ingredient | undefined> = new EventEmitter<Ingredient | undefined>();
 
   private mIngredient: Ingredient | undefined;
 
   constructor(
-    private readonly ingredientsService: IngredientsService
+    private readonly ingredientsService: IngredientsService,
+    private readonly store: Store<fromRoot.AppState>
   ) {
     super();
   }
 
-  @Input('ingredient')
+  // @Input('ingredient')
   set ingredient(ingredient: Ingredient | undefined) {
     console.log('[ShoppingListEditComponent] set ingredient', ingredient);
     if (this.form && ingredient) {
@@ -46,15 +50,34 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit {
 
   @LogMethod()
   ngOnInit(): void {
+    this.store.select('shoppingList')
+      .pipe(
+        map(state => state.ingredients.find(i => i.id === state.editedIngredientId)),
+        takeUntil(this.alive$)
+      )
+      .subscribe(
+        ingredient => this.ingredient = ingredient
+      );
+
     setTimeout(() => {
       this.form.controls.ingredientName.valueChanges
         .pipe(
           distinctUntilChanged(),
-          switchMap(ingredientName => this.ingredientsService.getIngredient(ingredientName)),
+          switchMap(ingredientName => {
+            return this.store.select('shoppingList')
+              .pipe(
+                map(state => findIngredient(state.ingredients, ingredientName))
+              );
+          }),
           takeUntil(this.alive$)
         )
-        .subscribe(ingredient => this.ingredientChange.emit(ingredient));
+        .subscribe(ingredient => this.tryStartEdit(ingredient));
     }, 0);
+  }
+
+  ngOnDestroy(): void {
+    this.store.dispatch(new ShoppingListActions.StopEdit());
+    super.ngOnDestroy();
   }
 
   @LogMethod()
@@ -63,19 +86,42 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit {
       return;
     }
 
-    if (!this.ingredientsService.updateIngredient({ name: this.form.value.ingredientName, amount: +this.form.value.amount })) {
-      this.ingredientsService.addIngredient(new Ingredient(this.form.value.ingredientName, +this.form.value.amount));
+    const newIngredient = new Ingredient(uuid.v4(), this.form.value.ingredientName, +this.form.value.amount);
+    if (this.ingredient) {
+      this.store.dispatch(new ShoppingListActions.UpdateIngredient(
+        { id: this.ingredient.id, amount: +this.form.value.amount }
+      ));
+    } else {
+      this.store.dispatch(new ShoppingListActions.AddIngredient(newIngredient));
     }
   }
 
   clearIngredient(): void {
+    this.store.dispatch(new ShoppingListActions.StopEdit());
     this.form.resetForm({
       amount: 1
     });
   }
 
   deleteIngredient(): void {
-    this.ingredientsService.deleteIngredient(this.form.value.ingredientName);
+    if (this.mIngredient) {
+      this.store.dispatch(new ShoppingListActions.DeleteIngredient(this.mIngredient));
+      this.form.resetForm({
+        amount: 1
+      });
+    }
   }
 
+  private tryStartEdit(ingredient: Ingredient | undefined): void {
+    console.log('tryStartEdit, old = ', this.mIngredient, ' new = ', ingredient);
+    if (ingredient === this.mIngredient) {
+      return;
+    }
+    if (this.mIngredient) {
+      this.store.dispatch(new ShoppingListActions.StopEdit());
+    }
+    if (ingredient) {
+      this.store.dispatch(new ShoppingListActions.StartEdit(ingredient));
+    }
+  }
 }

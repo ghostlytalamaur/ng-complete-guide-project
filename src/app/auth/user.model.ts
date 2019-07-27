@@ -1,4 +1,5 @@
 export class User {
+
   constructor(
     public readonly id: string,
     public readonly email: string,
@@ -13,4 +14,9 @@ export class User {
     }
     return this.mToken;
   }
+
+  getTokenExpirationDuration(): number {
+    return this.mTokenExpirationDate.getTime() - new Date().getTime();
+  }
+
 }

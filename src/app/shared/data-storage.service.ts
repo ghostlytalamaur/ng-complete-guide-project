@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RecipesService } from '../recipe-book/services/recipes.service';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { Ingredient } from './models/ingredient';
+import * as uuid from 'uuid';
 
 const ENDPOINT = 'https://ng-complete-guide-projec-84903.firebaseio.com/recipes.json';
 
@@ -33,12 +34,12 @@ export class DataStorageService {
       .pipe(
         map(recipes => {
           return recipes.map(r => {
-            const ingredients = r.ingredients ? r.ingredients.map(i => new Ingredient(i.name, i.amount)) : [];
+            const ingredients = r.ingredients ? r.ingredients.map(i => new Ingredient(uuid.v4(), i.name, i.amount)) : [];
             return new Recipe(r.id, r.name, r.description, r.imagePath, ingredients);
           });
         }),
         tap(recipes => this.recipeService.setRecipes(...recipes)),
-        catchError(err => of([]))
+        catchError(() => of([]))
       );
   }
 
