@@ -1,5 +1,6 @@
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as AuthActions from './auth.actions';
+import { AuthenticateSuccess } from './auth.actions';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -35,10 +36,12 @@ export class AuthEffects {
   authRedirect = this.actions$
     .pipe(
       ofType(AuthActions.AuthActions.AUTHENTICATE_SUCCESS),
-      tap(() => {
+      tap((data: AuthenticateSuccess) => {
         console.log('Navigate to /');
-        this.router.navigate(['/'])
-          .catch(console.log);
+        if (data.payload.redirect) {
+          this.router.navigate(['/'])
+            .catch(console.log);
+        }
       })
     );
   @Effect({ dispatch: false })
@@ -85,7 +88,7 @@ export class AuthEffects {
   private static handleAutoLogin(): Action {
     const user = AuthEffects.loadUser();
     if (user) {
-      return new AuthActions.AuthenticateSuccess({ user });
+      return new AuthActions.AuthenticateSuccess({ user, redirect: false });
     } else {
       return { type: 'DUMMY' };
     }
@@ -106,7 +109,7 @@ export class AuthEffects {
           AuthEffects.storeUser(user);
           this.authService.autoLogout(user.getTokenExpirationDuration());
         }),
-        map(user => new AuthActions.AuthenticateSuccess({ user })),
+        map(user => new AuthActions.AuthenticateSuccess({ user, redirect: true })),
         catchError((err: Error) => of(new AuthActions.AuthenticateFail({ message: err.message })))
       );
   }

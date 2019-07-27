@@ -42,7 +42,8 @@ import { environment } from '../environments/environment';
     ]),
     StoreDevtoolsModule.instrument({
       logOnly: environment.production
-    })
+    }),
+    // StoreRouterConnectingModule.forRoot()
     // StoreModule.forRoot(reducers, {
     //   metaReducers,
     //   runtimeChecks: {

@@ -14,7 +14,7 @@ export enum AuthActions {
 export class AuthenticateSuccess implements Action {
   readonly type = AuthActions.AUTHENTICATE_SUCCESS;
 
-  constructor(public readonly payload: { user: User }) {
+  constructor(public readonly payload: { user: User, redirect: boolean }) {
   }
 }
 

@@ -9,4 +9,14 @@ export class Recipe {
     public readonly ingredients: ReadonlyArray<Ingredient>
   ) {
   }
+
+  update(fields: { id: string } & Partial<Recipe>): Recipe {
+    return new Recipe(
+      fields.id,
+      fields.name || this.name,
+      fields.description || this.description,
+      fields.imagePath || this.imagePath,
+      fields.ingredients || this.ingredients
+    );
+  }
 }

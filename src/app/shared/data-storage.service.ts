@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Recipe } from '../recipe-book/models/recipe';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { RecipesService } from '../recipe-book/services/recipes.service';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Ingredient } from './models/ingredient';
 import * as uuid from 'uuid';
 
@@ -14,19 +13,16 @@ const ENDPOINT = 'https://ng-complete-guide-projec-84903.firebaseio.com/recipes.
 })
 export class DataStorageService {
 
-  constructor(private readonly http: HttpClient,
-              private readonly recipeService: RecipesService) {
+  constructor(
+    private readonly http: HttpClient
+  ) {
   }
 
-  storeRecipes(): void {
-    const recipes$ = this.recipeService.getRecipes();
-    recipes$
+  storeRecipes(recipes: Recipe[]): Observable<{}> {
+    return this.http.put(ENDPOINT, recipes)
       .pipe(
-        switchMap(recipes => this.http.put(ENDPOINT, recipes))
-      )
-      .subscribe(response => {
-        console.log(response);
-      });
+        catchError(() => throwError(new Error('Cannot store recipes')))
+      );
   }
 
   fetchRecipes(): Observable<Recipe[]> {
@@ -38,14 +34,8 @@ export class DataStorageService {
             return new Recipe(r.id, r.name, r.description, r.imagePath, ingredients);
           });
         }),
-        tap(recipes => this.recipeService.setRecipes(...recipes)),
         catchError(() => of([]))
       );
   }
-
-  // storeRecipes(): void {}
-  // fetchRecipes(): Observable<Recipe[]> {
-  //   return of([]);
-  // }
 
 }

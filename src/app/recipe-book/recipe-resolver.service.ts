@@ -1,27 +1,43 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { Recipe } from './models/recipe';
-import { Observable } from 'rxjs';
-import { DataStorageService } from '../shared/data-storage.service';
-import { RecipesService } from './services/recipes.service';
-import { first } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap, take } from 'rxjs/operators';
+import * as fromRecipes from './store/recipe.reducer';
+import * as RecipeActions from '../recipe-book/store/recipe.actions';
+import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecipeResolverService implements Resolve<Recipe[]> {
 
-  constructor(private readonly dataStorageService: DataStorageService,
-              private readonly recipeService: RecipesService) {
+  constructor(private readonly store: Store<fromRecipes.State>,
+              private readonly actions$: Actions
+  ) {
   }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Recipe[]> | Promise<Recipe[]> | Recipe[] {
     console.log('Resolving data');
-    if (this.recipeService.hasRecipes()) {
-      return this.recipeService.getRecipes().pipe(first());
-    } else {
-      return this.dataStorageService.fetchRecipes();
-    }
+    return this.store.select(fromRecipes.selectRecipes)
+      .pipe(
+        take(1),
+        switchMap(recipes => {
+          // FIXME: recipes fetched after deleting all recipes and revisit page
+          if (recipes.length === 0) {
+            this.store.dispatch(RecipeActions.fetchRecipes());
+            return this.actions$
+              .pipe(
+                ofType(RecipeActions.setRecipes),
+                map(action => action.recipes),
+                take(1)
+              );
+          } else {
+            return of(recipes);
+          }
+        })
+      );
   }
 
 }

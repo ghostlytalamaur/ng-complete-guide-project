@@ -5,6 +5,7 @@ import { map, takeUntil } from 'rxjs/operators';
 import * as fromRoot from '../store/app.reducer';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../auth/store/auth.actions';
+import * as RecipeActions from '../recipe-book/store/recipe.actions';
 
 @Component({
   selector: 'app-header',
@@ -36,11 +37,11 @@ export class HeaderComponent extends BaseComponent implements OnInit {
   }
 
   onSaveData(): void {
-    this.dataStorageService.storeRecipes();
+    this.store.dispatch(RecipeActions.storeRecipes());
   }
 
   onFetchData(): void {
-    this.dataStorageService.fetchRecipes().subscribe();
+    this.store.dispatch(RecipeActions.fetchRecipes());
   }
 
   onLogout(): void {

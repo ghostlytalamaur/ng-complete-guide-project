@@ -10,6 +10,10 @@ import { RecipeBookRouterModule } from './recipe-book-router.module';
 import { RecipeEditComponent } from './recipe-edit-component/recipe-edit.component';
 import { RecipeStartComponent } from './recipe-start/recipe-start.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { StoreModule } from '@ngrx/store';
+import * as fromRecipes from './store/recipe.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { RecipeEffects } from './store/recipe.effects';
 
 @NgModule({
   declarations: [
@@ -33,6 +37,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatExpansionModule,
     RecipesServiceModule,
     RecipeBookRouterModule,
+    StoreModule.forFeature(fromRecipes.recipesFeatureKey, fromRecipes.reducers),
+    EffectsModule.forFeature([RecipeEffects])
   ]
 })
 export class RecipeBookModule {

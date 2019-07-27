@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Recipe } from '../models/recipe';
-import { RecipesService } from '../services/recipes.service';
 import { Observable } from 'rxjs';
 import { BaseComponent } from '../../shared/BaseComponent';
+import { Store } from '@ngrx/store';
+import * as fromRecipes from '../store/recipe.reducer';
 
 @Component({
   selector: 'app-recipe-list',
@@ -14,12 +15,13 @@ export class RecipeListComponent extends BaseComponent implements OnInit {
   recipes$: Observable<Recipe[]>;
 
   constructor(
-    private recipesService: RecipesService
+    private readonly store: Store<fromRecipes.State>
   ) {
     super();
   }
 
   ngOnInit(): void {
-    this.recipes$ = this.recipesService.getRecipes();
+    this.recipes$ = this.store.select(fromRecipes.selectRecipes);
+    // this.recipes$ = this.recipesService.getRecipes();
   }
 }
