@@ -1,4 +1,4 @@
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, Effect, ofType } from '@ngrx/effects';
 import * as RecipeActions from './recipe.actions';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { DataStorageService } from '../../shared/data-storage.service';
@@ -6,26 +6,44 @@ import { Injectable } from '@angular/core';
 import * as fromRecipes from './recipe.reducer';
 import { Action, Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
-import { Recipe } from '../models/recipe';
 
 @Injectable()
 export class RecipeEffects {
 
-  @Effect()
-  fetchRecipes = this.actions$
-    .pipe(
-      ofType(RecipeActions.fetchRecipes),
-      switchMap(() => this.dataStorage.fetchRecipes()),
-      map(recipes => RecipeActions.setRecipes({ recipes }))
-    );
+  fetchRecipes$ = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(RecipeActions.fetchRecipes),
+        switchMap(() => this.dataStorage.fetchRecipes()),
+        map(recipes => RecipeActions.setRecipes({ recipes }))
+      )
+  );
 
   @Effect()
-  storeRecipes = this.actions$
-    .pipe(
-      ofType(RecipeActions.storeRecipes),
-      withLatestFrom(this.store.select(fromRecipes.selectRecipes)),
-      switchMap(([ignored, recipes]) => this.handleStoreRecipes(recipes))
-    );
+  storeRecipes$ = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(RecipeActions.storeRecipes),
+        withLatestFrom(this.store.select(fromRecipes.selectRecipes)),
+        switchMap(([ignored, recipes]) => this.handleStorageResult(this.dataStorage.storeRecipes(recipes)))
+      )
+  );
+
+  updateEffect$ = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(RecipeActions.updateRecipe, RecipeActions.addRecipe),
+        switchMap(action => this.handleStorageResult(this.dataStorage.updateRecipe(action.recipe)))
+      )
+  );
+
+  deleteEffect$ = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(RecipeActions.deleteRecipe),
+        switchMap(action => this.handleStorageResult(this.dataStorage.deleteRecipe(action.recipeId)))
+      )
+  );
 
   constructor(
     private readonly actions$: Actions,
@@ -34,11 +52,10 @@ export class RecipeEffects {
   ) {
   }
 
-  private handleStoreRecipes(recipes: Recipe[]): Observable<Action> {
-    return this.dataStorage.storeRecipes(recipes)
-      .pipe(
-        map(() => RecipeActions.storeCompleted()),
-        catchError(() => of(RecipeActions.storeFailed()))
-      );
+  private handleStorageResult(data: Observable<void>): Observable<Action> {
+    return data.pipe(
+      map(() => RecipeActions.storeCompleted()),
+      catchError((err: Error) => of(RecipeActions.storeFailed({ message: err.message })))
+    );
   }
 }

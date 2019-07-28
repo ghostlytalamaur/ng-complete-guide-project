@@ -1,0 +1,10 @@
+<div class="panel">
+  <div class="list-group">
+    <div
+      (click)="onRemoveNotification(notifyItem.id)"
+      *ngFor="let notifyItem of (notifications$ | async); last as isLast"
+      class="mouse-pointer list-group-item"
+    >{{ notifyItem.message }}
+    </div>
+  </div>
+</div>

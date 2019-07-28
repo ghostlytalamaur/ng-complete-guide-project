@@ -1,9 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Recipe } from '../models/recipe';
-
-export const ADD_RECIPE = '[Recipes] Add Recipe';
-export const UPDATE_RECIPE = '[Recipes] Update Recipe';
-export const DELETE_RECIPE = '[Recipes] Delete Recipe';
+import { PartialRecipe, Recipe } from '../models/recipe';
 
 export const setRecipes = createAction(
   '[Recipes] Set Recipes',
@@ -22,7 +18,7 @@ export const deleteRecipe = createAction(
 
 export const updateRecipe = createAction(
   '[Recipes] Update Recipe',
-  props<{ recipe: { id: string } & Partial<Recipe> }>()
+  props<{ recipe: PartialRecipe }>()
 );
 
 export const fetchRecipes = createAction(
@@ -38,5 +34,6 @@ export const storeCompleted = createAction(
 );
 
 export const storeFailed = createAction(
-  '[Recipes] Store Failed'
+  '[Recipes] Store Failed',
+  props<{ message: string }>()
 );

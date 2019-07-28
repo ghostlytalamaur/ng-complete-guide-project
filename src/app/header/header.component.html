@@ -26,23 +26,15 @@
       >Shopping List</a>
     </div>
 
-    <mat-menu #manageMenu>
-      <a class="nav-item nav-link" mat-menu-item (click)="onSaveData()">Save Data</a>
-      <a class="nav-item nav-link" mat-menu-item (click)="onFetchData()">Fetch Data</a>
-    </mat-menu>
-
     <div class="navbar-nav">
+      <app-notifications-button
+        class="nav-item nav-link"
+      ></app-notifications-button>
       <a
         class="nav-item nav-link mouse-pointer"
         *ngIf="isAuthenticated"
         (click)="onLogout()"
       >Logout</a>
-      <a
-        class="nav-item nav-link mouse-pointer"
-        [matMenuTriggerFor]="manageMenu"
-        *ngIf="isAuthenticated"
-      >Manage
-      </a>
     </div>
   </div>
 

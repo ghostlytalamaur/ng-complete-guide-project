@@ -20,3 +20,5 @@ export class Recipe {
     );
   }
 }
+
+export type PartialRecipe = { id: string } & Partial<Recipe>;

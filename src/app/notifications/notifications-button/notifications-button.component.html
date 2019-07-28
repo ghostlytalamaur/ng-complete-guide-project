@@ -1,0 +1,9 @@
+<button
+  [appDropdown]="notificationsPanel"
+  [matBadge]="notificationsCount$ | async | number"
+  mat-button
+>Notifications
+</button>
+<ng-template #notificationsPanel>
+  <app-notifications-panel></app-notifications-panel>
+</ng-template>

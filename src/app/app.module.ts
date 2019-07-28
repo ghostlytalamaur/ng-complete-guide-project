@@ -17,6 +17,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { AuthEffects } from './auth/store/auth.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,8 @@ import { environment } from '../environments/environment';
     MatMenuModule,
     NgbCollapseModule,
 
+    NotificationsModule,
+
     SharedModule,
     CoreModule,
     AppRoutingModule,
@@ -42,7 +45,7 @@ import { environment } from '../environments/environment';
     ]),
     StoreDevtoolsModule.instrument({
       logOnly: environment.production
-    }),
+    })
     // StoreRouterConnectingModule.forRoot()
     // StoreModule.forRoot(reducers, {
     //   metaReducers,

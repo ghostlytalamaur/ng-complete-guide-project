@@ -7,6 +7,7 @@ export const recipesFeatureKey = 'recipes';
 
 export interface RecipesState {
   recipes: Recipe[];
+  storageError: string | undefined;
 }
 
 export interface State extends fromRoot.AppState {
@@ -14,7 +15,8 @@ export interface State extends fromRoot.AppState {
 }
 
 const initialState: RecipesState = {
-  recipes: []
+  recipes: [],
+  storageError: undefined
 };
 
 const recipeReducer = createReducer<RecipesState>(initialState,
@@ -33,6 +35,7 @@ const recipeReducer = createReducer<RecipesState>(initialState,
   }),
 
   on(RecipeActions.updateRecipe, (state, { recipe }) => {
+    console.log('Update recipe');
     const idx = state.recipes.findIndex(r => r.id === recipe.id);
     if (idx >= 0) {
       const newRecipes = state.recipes.slice();
@@ -52,6 +55,20 @@ const recipeReducer = createReducer<RecipesState>(initialState,
     return {
       ...state,
       recipes: state.recipes.filter(r => r.id !== recipeId)
+    };
+  }),
+
+  on(RecipeActions.storeCompleted, (state) => {
+    return {
+      ...state,
+      storageError: undefined
+    };
+  }),
+
+  on(RecipeActions.storeFailed, (state, { message }) => {
+    return {
+      ...state,
+      storageError: message
     };
   })
 );
