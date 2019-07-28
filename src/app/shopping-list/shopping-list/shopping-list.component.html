@@ -5,6 +5,7 @@
       <hr>
       <ul class="list-group">
         <li
+          @ingredientsListItem
           class="list-group-item mouse-pointer"
           (click)="onSelectIngredient(ingredient)"
           *ngFor="let ingredient of (ingredients$ | async).ingredients"
