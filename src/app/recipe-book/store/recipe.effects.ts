@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import * as fromRecipes from './recipe.reducer';
 import { Action, Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
+import { NotificationsActions } from '../../notifications/store';
 
 @Injectable()
 export class RecipeEffects {
@@ -54,8 +55,10 @@ export class RecipeEffects {
 
   private handleStorageResult(data: Observable<void>): Observable<Action> {
     return data.pipe(
-      map(() => RecipeActions.storeCompleted()),
-      catchError((err: Error) => of(RecipeActions.storeFailed({ message: err.message })))
+      map(() => NotificationsActions.addNotification({ message: 'Recipes was saved' })),
+      // map(() => RecipeActions.storeCompleted()),
+      catchError((err: Error) => of(NotificationsActions.addNotification({ message: err.message })))
+      // catchError((err: Error) => of(RecipeActions.storeFailed({ message: err.message })))
     );
   }
 }
