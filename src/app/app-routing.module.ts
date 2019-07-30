@@ -6,7 +6,6 @@ const appRoutes: Routes = [
   { path: '', redirectTo: '/recipes', pathMatch: 'full' },
   { path: 'recipes', loadChildren: './recipe-book/recipe-book.module#RecipeBookModule' },
   { path: 'shopping-list', loadChildren: './shopping-list/shopping-list.module#ShoppingListModule' },
-  { path: 'auth', loadChildren: './auth/auth.module#AuthModule' },
   { path: '**', component: ErrorPageComponent, data: { message: '404 Page not found' } }
 ];
 

@@ -5,10 +5,11 @@ import { RecipeDetailComponent } from './recipe-detail/recipe-detail.component';
 import { RecipeEditComponent } from './recipe-edit-component/recipe-edit.component';
 import { RecipeStartComponent } from './recipe-start/recipe-start.component';
 import { AuthGuard } from '../auth/auth.guard';
+import { RecipeResolverService } from './recipe-resolver.service';
 
 const routes: Routes = [
   {
-    path: '', component: RecipesComponent, /* resolve: [RecipeResolverService], */ canActivate: [AuthGuard],
+    path: '', component: RecipesComponent, resolve: [RecipeResolverService], canActivate: [AuthGuard],
     children: [
       { path: '', component: RecipeStartComponent, pathMatch: 'full' },
       { path: 'new', component: RecipeEditComponent },

@@ -1,4 +1,4 @@
-import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import * as AuthActions from './auth.actions';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../auth.service';
@@ -10,7 +10,7 @@ import { Action } from '@ngrx/store';
 import { User } from '../user.model';
 
 @Injectable()
-export class AuthEffects {
+export class AuthEffects implements OnInitEffects {
 
   authLogin = createEffect(() =>
     this.actions$
@@ -131,9 +131,9 @@ export class AuthEffects {
       .catch(console.log);
   }
 
-  // ngrxOnInitEffects(): Action {
-  //   console.log('dispatch autoLogin');
-  //   return AuthActions.autoLogin();
-  // }
+  ngrxOnInitEffects(): Action {
+    console.log('dispatch autoLogin');
+    return AuthActions.autoLogin();
+  }
 
 }

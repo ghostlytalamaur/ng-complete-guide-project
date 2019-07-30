@@ -17,6 +17,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EffectsModule } from '@ngrx/effects';
+import { AuthModule } from './auth/auth.module';
 
 @NgModule({
   declarations: [
@@ -33,11 +34,6 @@ import { EffectsModule } from '@ngrx/effects';
     MatMenuModule,
     NgbCollapseModule,
 
-    NotificationsModule,
-
-    SharedModule,
-    CoreModule,
-    AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducer, {
       runtimeChecks: {
         strictStateImmutability: true,
@@ -49,15 +45,14 @@ import { EffectsModule } from '@ngrx/effects';
     EffectsModule.forRoot([]),
     StoreDevtoolsModule.instrument({
       logOnly: environment.production
-    })
-    // StoreRouterConnectingModule.forRoot()
-    // StoreModule.forRoot(reducers, {
-    //   metaReducers,
-    //   runtimeChecks: {
-    //     strictStateImmutability: true,
-    //     strictActionImmutability: true
-    //   }
-    // })
+    }),
+
+    NotificationsModule,
+
+    SharedModule,
+    CoreModule,
+    AuthModule,
+    AppRoutingModule
   ],
   bootstrap: [AppComponent]
 })
