@@ -13,17 +13,16 @@ import { SharedModule } from './shared/shared.module';
 import { CoreModule } from './core.module';
 import { StoreModule } from '@ngrx/store';
 import * as fromApp from './store/app.reducer';
-import { EffectsModule } from '@ngrx/effects';
-import { AuthEffects } from './auth/store/auth.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { NotificationsModule } from './notifications/notifications.module';
+import { EffectsModule } from '@ngrx/effects';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
-    ErrorPageComponent,
+    ErrorPageComponent
   ],
   imports: [
     BrowserModule,
@@ -39,10 +38,15 @@ import { NotificationsModule } from './notifications/notifications.module';
     SharedModule,
     CoreModule,
     AppRoutingModule,
-    StoreModule.forRoot(fromApp.appReducer),
-    EffectsModule.forRoot([
-      AuthEffects
-    ]),
+    StoreModule.forRoot(fromApp.appReducer, {
+      runtimeChecks: {
+        strictStateImmutability: true,
+        strictActionImmutability: true,
+        strictStateSerializability: false,
+        strictActionSerializability: false
+      }
+    }),
+    EffectsModule.forRoot([]),
     StoreDevtoolsModule.instrument({
       logOnly: environment.production
     })

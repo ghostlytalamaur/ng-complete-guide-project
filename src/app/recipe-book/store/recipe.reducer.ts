@@ -1,7 +1,7 @@
 import { Recipe } from '../models/recipe';
 import * as RecipeActions from './recipe.actions';
 import { Action, createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
-import * as fromRoot from '../../store/app.reducer';
+import { fromRoot } from '../../store';
 
 export const recipesFeatureKey = 'recipes';
 

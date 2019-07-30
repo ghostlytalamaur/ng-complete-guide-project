@@ -4,8 +4,8 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { User } from './user.model';
 import { Store } from '@ngrx/store';
-import * as fromRoot from '../store/app.reducer';
 import * as AuthActions from './store/auth.actions';
+import { fromAuth } from './store';
 import Timer = NodeJS.Timer;
 
 const API_KEY = 'AIzaSyBrVa7gZgOU1okS3wVLUiC38_LWrrog1IE';
@@ -34,7 +34,7 @@ export class AuthService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly store: Store<fromRoot.AppState>
+    private readonly store: Store<fromAuth.State>
   ) {
   }
 
@@ -95,7 +95,7 @@ export class AuthService {
     if (expirationDuration > 0) {
       this.tokenExpirationTimer = setTimeout(() => {
         this.clearAutoLogoutTimer();
-        this.store.dispatch(new AuthActions.Logout());
+        this.store.dispatch(AuthActions.logout());
       }, expirationDuration);
     }
   }

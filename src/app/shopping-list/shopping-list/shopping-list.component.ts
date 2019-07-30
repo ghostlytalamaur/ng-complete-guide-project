@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Ingredient } from '../../shared/models/ingredient';
 import { IngredientsService } from '../services/ingredients.service';
-import { Observable } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
 import { Store } from '@ngrx/store';
-import { State } from '../store/shopping-list.reducer';
 import * as ShoppingListActions from '../store/shopping-list.actions';
-import * as fromRoot from '../../store/app.reducer';
 import { animate, group, keyframes, state, style, transition, trigger } from '@angular/animations';
+import { fromShoppingList } from '../store';
+import { selectShoppingListState } from '../store/shopping-list.reducer';
 
 @Component({
   selector: 'app-shopping-list',
@@ -89,29 +88,24 @@ import { animate, group, keyframes, state, style, transition, trigger } from '@a
 })
 export class ShoppingListComponent extends BaseComponent implements OnInit {
 
-  ingredients$: Observable<State>;
-  selectedIngredientId: string | undefined;
+  state: fromShoppingList.ShoppingListState;
 
   constructor(
     private readonly ingredientsService: IngredientsService,
-    private store: Store<fromRoot.AppState>
+    private store: Store<fromShoppingList.State>
   ) {
     super();
   }
 
   ngOnInit(): void {
-    this.ingredients$ = this.store.select('shoppingList');
-    this.ingredients$
+    this.store.select(selectShoppingListState)
       .pipe(
-        map(storeState => storeState.editedIngredientId),
         takeUntil(this.alive$)
       )
-      .subscribe(editedIngredientId => {
-        this.selectedIngredientId = editedIngredientId;
-      });
+      .subscribe(s => this.state = s);
   }
 
   onSelectIngredient(ingredient: Ingredient): void {
-    this.store.dispatch(new ShoppingListActions.StartEdit(ingredient));
+    this.store.dispatch(ShoppingListActions.startEdit({ id: ingredient.id }));
   }
 }

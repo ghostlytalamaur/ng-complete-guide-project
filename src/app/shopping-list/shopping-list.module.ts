@@ -5,6 +5,8 @@ import { MatButtonModule, MatInputModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { ShoppingListRouterModule } from './shopping-list-router.module';
 import { CommonModule } from '@angular/common';
+import { StoreModule } from '@ngrx/store';
+import { fromShoppingList } from './store';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,8 @@ import { CommonModule } from '@angular/common';
     FormsModule,
     MatButtonModule,
     MatInputModule,
-    ShoppingListRouterModule
+    ShoppingListRouterModule,
+    StoreModule.forFeature(fromShoppingList.shoppingListKey, fromShoppingList.reducer)
   ]
 })
 export class ShoppingListModule { }

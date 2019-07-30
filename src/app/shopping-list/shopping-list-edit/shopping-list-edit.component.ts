@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { findIngredient, Ingredient } from '../../shared/models/ingredient';
+import { Ingredient } from '../../shared/models/ingredient';
 import { IngredientsService } from '../services/ingredients.service';
 import { LogMethod } from '../../shared/logger.decorator';
-import { distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import * as ShoppingListActions from '../store/shopping-list.actions';
 import * as uuid from 'uuid';
-import * as fromRoot from '../../store/app.reducer';
+import { fromShoppingList } from '../store';
 
 @Component({
   selector: 'app-shopping-list-edit',
@@ -20,14 +20,11 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
   @ViewChild('frm', { static: false })
   form: NgForm;
 
-  // @Output()
-  // ingredientChange: EventEmitter<Ingredient | undefined> = new EventEmitter<Ingredient | undefined>();
-
   private mIngredient: Ingredient | undefined;
 
   constructor(
     private readonly ingredientsService: IngredientsService,
-    private readonly store: Store<fromRoot.AppState>
+    private readonly store: Store<fromShoppingList.State>
   ) {
     super();
   }
@@ -50,9 +47,8 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
 
   @LogMethod()
   ngOnInit(): void {
-    this.store.select('shoppingList')
+    this.store.select(fromShoppingList.getEditedIngredient)
       .pipe(
-        map(state => state.ingredients.find(i => i.id === state.editedIngredientId)),
         takeUntil(this.alive$)
       )
       .subscribe(
@@ -63,12 +59,7 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
       this.form.controls.ingredientName.valueChanges
         .pipe(
           distinctUntilChanged(),
-          switchMap(ingredientName => {
-            return this.store.select('shoppingList')
-              .pipe(
-                map(state => findIngredient(state.ingredients, ingredientName))
-              );
-          }),
+          switchMap((ingredientName: string) => this.store.select(fromShoppingList.getIngredient(ingredientName))),
           takeUntil(this.alive$)
         )
         .subscribe(ingredient => this.tryStartEdit(ingredient));
@@ -76,7 +67,7 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
   }
 
   ngOnDestroy(): void {
-    this.store.dispatch(new ShoppingListActions.StopEdit());
+    this.store.dispatch(ShoppingListActions.stopEdit());
     super.ngOnDestroy();
   }
 
@@ -88,16 +79,16 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
 
     const newIngredient = new Ingredient(uuid.v4(), this.form.value.ingredientName, +this.form.value.amount);
     if (this.ingredient) {
-      this.store.dispatch(new ShoppingListActions.UpdateIngredient(
-        { id: this.ingredient.id, amount: +this.form.value.amount }
+      this.store.dispatch(ShoppingListActions.updateIngredient(
+        { ingredient: { id: this.ingredient.id, amount: +this.form.value.amount } }
       ));
     } else {
-      this.store.dispatch(new ShoppingListActions.AddIngredient(newIngredient));
+      this.store.dispatch(ShoppingListActions.addIngredient({ ingredient: newIngredient }));
     }
   }
 
   clearIngredient(): void {
-    this.store.dispatch(new ShoppingListActions.StopEdit());
+    this.store.dispatch(ShoppingListActions.stopEdit());
     this.form.resetForm({
       amount: 1
     });
@@ -105,7 +96,7 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
 
   deleteIngredient(): void {
     if (this.mIngredient) {
-      this.store.dispatch(new ShoppingListActions.DeleteIngredient(this.mIngredient));
+      this.store.dispatch(ShoppingListActions.deleteIngredient({ id: this.mIngredient.id }));
       this.form.resetForm({
         amount: 1
       });
@@ -118,10 +109,10 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
       return;
     }
     if (this.mIngredient) {
-      this.store.dispatch(new ShoppingListActions.StopEdit());
+      this.store.dispatch(ShoppingListActions.stopEdit());
     }
     if (ingredient) {
-      this.store.dispatch(new ShoppingListActions.StartEdit(ingredient));
+      this.store.dispatch(ShoppingListActions.startEdit({ id: ingredient.id }));
     }
   }
 }

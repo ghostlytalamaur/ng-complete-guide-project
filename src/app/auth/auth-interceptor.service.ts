@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { switchMap, take } from 'rxjs/operators';
 import { User } from './user.model';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../store/app.reducer';
+import { fromAuth } from './store';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
@@ -13,10 +14,9 @@ export class AuthInterceptorService implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (req.url.includes('https://ng-complete-guide-projec-84903.firebaseio.com')) {
-      return this.store.select('auth')
+      return this.store.select(fromAuth.getUser)
         .pipe(
           take(1),
-          map(authState => authState.user),
           switchMap((user: User) => {
             if (user && user.token) {
               const params = req.params.set('auth', user.token);

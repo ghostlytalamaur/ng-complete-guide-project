@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthRouterModule } from './auth-router.module';
 import { SharedModule } from '../shared/shared.module';
+import { StoreModule } from '@ngrx/store';
+import { fromAuth } from './store';
+import { EffectsModule } from '@ngrx/effects';
+import { AuthEffects } from './store/auth.effects';
 
 @NgModule({
   declarations: [
@@ -16,7 +20,13 @@ import { SharedModule } from '../shared/shared.module';
     MatButtonModule,
     MatProgressSpinnerModule,
     SharedModule,
-    AuthRouterModule
+    AuthRouterModule,
+    StoreModule.forFeature(fromAuth.authFeatureKey, fromAuth.reducer),
+    EffectsModule.forFeature([AuthEffects])
   ]
 })
-export class AuthModule {}
+export class AuthModule {
+  constructor() {
+    console.log('constructing AuthModule');
+  }
+}

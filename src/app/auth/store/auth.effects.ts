@@ -1,6 +1,5 @@
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as AuthActions from './auth.actions';
-import { AuthenticateSuccess } from './auth.actions';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -13,43 +12,52 @@ import { User } from '../user.model';
 @Injectable()
 export class AuthEffects {
 
+  authLogin = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(AuthActions.loginStart),
+        switchMap(action => this.login(action.email, action.password))
+      )
+  );
 
-  @Effect()
-  authLogin = this.actions$
-    .pipe(
-      ofType(AuthActions.AuthActions.LOGIN_START),
-      switchMap((action: AuthActions.LoginStart) => this.login(action))
-    );
-  @Effect()
-  autoLogin = this.actions$
-    .pipe(
-      ofType(AuthActions.AuthActions.AUTO_LOGIN),
-      map(() => AuthEffects.handleAutoLogin())
-    );
-  @Effect()
-  authSignUp = this.actions$
-    .pipe(
-      ofType(AuthActions.AuthActions.SIGN_UP_START),
-      switchMap((action: AuthActions.SignUpStart) => this.signUp(action))
-    );
-  @Effect({ dispatch: false })
-  authRedirect = this.actions$
-    .pipe(
-      ofType(AuthActions.AuthActions.AUTHENTICATE_SUCCESS),
-      tap((data: AuthenticateSuccess) => {
-        console.log('Navigate to /');
-        if (data.payload.redirect) {
-          this.router.navigate(['/'])
-            .catch(console.log);
-        }
-      })
-    );
-  @Effect({ dispatch: false })
-  authLogout = this.actions$
-    .pipe(
-      ofType(AuthActions.AuthActions.LOGOUT),
-      tap(() => this.onLogout())
-    );
+  autoLogin = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(AuthActions.autoLogin),
+        map(() => this.handleAutoLogin())
+      )
+  );
+
+  authSignUp = createEffect(() =>
+    this.actions$
+      .pipe(
+        ofType(AuthActions.signUpStart),
+        switchMap(action => this.signUp(action.email, action.email))
+      )
+  );
+
+  authRedirect = createEffect(() =>
+      this.actions$
+        .pipe(
+          ofType(AuthActions.authenticateSuccess),
+          tap(data => {
+            if (data.redirect) {
+              this.router.navigate(['/'])
+                .catch(console.log);
+            }
+          })
+        ),
+    { dispatch: false }
+  );
+
+  authLogout = createEffect(() =>
+      this.actions$
+        .pipe(
+          ofType(AuthActions.logout),
+          tap(() => this.onLogout())
+        ),
+    { dispatch: false }
+  );
 
   constructor(
     private readonly actions$: Actions,
@@ -57,6 +65,7 @@ export class AuthEffects {
     private readonly router: Router,
     private readonly authService: AuthService
   ) {
+    console.log('constructing AuthEffects');
   }
 
   private static storeUser(user: User | undefined): void {
@@ -85,21 +94,22 @@ export class AuthEffects {
     }
   }
 
-  private static handleAutoLogin(): Action {
+  private handleAutoLogin(): Action {
     const user = AuthEffects.loadUser();
     if (user) {
-      return new AuthActions.AuthenticateSuccess({ user, redirect: false });
+      this.authService.autoLogout(user.getTokenExpirationDuration());
+      return AuthActions.authenticateSuccess({ user, redirect: false });
     } else {
       return { type: 'DUMMY' };
     }
   }
 
-  private login(action: AuthActions.LoginStart): Observable<Action> {
-    return this.handleAuthenticate(this.authService.login(action.payload.email, action.payload.password));
+  private login(email: string, password: string): Observable<Action> {
+    return this.handleAuthenticate(this.authService.login(email, password));
   }
 
-  private signUp(action: AuthActions.SignUpStart): Observable<Action> {
-    return this.handleAuthenticate(this.authService.signUp(action.payload.email, action.payload.password));
+  private signUp(email: string, password: string): Observable<Action> {
+    return this.handleAuthenticate(this.authService.signUp(email, password));
   }
 
   private handleAuthenticate(user$: Observable<User>): Observable<Action> {
@@ -109,8 +119,8 @@ export class AuthEffects {
           AuthEffects.storeUser(user);
           this.authService.autoLogout(user.getTokenExpirationDuration());
         }),
-        map(user => new AuthActions.AuthenticateSuccess({ user, redirect: true })),
-        catchError((err: Error) => of(new AuthActions.AuthenticateFail({ message: err.message })))
+        map(user => AuthActions.authenticateSuccess({ user, redirect: true })),
+        catchError((err: Error) => of(AuthActions.authenticateFail({ message: err.message })))
       );
   }
 
@@ -120,5 +130,10 @@ export class AuthEffects {
     this.router.navigate(['/auth'])
       .catch(console.log);
   }
+
+  // ngrxOnInitEffects(): Action {
+  //   console.log('dispatch autoLogin');
+  //   return AuthActions.autoLogin();
+  // }
 
 }

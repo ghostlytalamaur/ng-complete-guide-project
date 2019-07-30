@@ -8,8 +8,8 @@
           @ingredientsListItem
           class="list-group-item mouse-pointer"
           (click)="onSelectIngredient(ingredient)"
-          *ngFor="let ingredient of (ingredients$ | async).ingredients"
-          [ngClass]="{active: selectedIngredientId === ingredient.id}"
+          *ngFor="let ingredient of state.ingredients"
+          [ngClass]="{active: state.editedIngredientId === ingredient.id}"
         >
           <div>{{ ingredient.name }} ({{ ingredient.amount }})</div>
         </li>

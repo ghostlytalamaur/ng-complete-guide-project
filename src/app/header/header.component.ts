@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { DataStorageService } from '../shared/data-storage.service';
+import { RecipesDataStorageService } from '../recipe-book/services/recipes-data-storage.service';
 import { BaseComponent } from '../shared/BaseComponent';
-import { map, takeUntil } from 'rxjs/operators';
-import * as fromRoot from '../store/app.reducer';
+import { takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../auth/store/auth.actions';
+import { fromAuth } from '../auth/store';
 
 @Component({
   selector: 'app-header',
@@ -16,16 +16,15 @@ export class HeaderComponent extends BaseComponent implements OnInit {
   isAuthenticated = false;
 
   constructor(
-    private readonly dataStorageService: DataStorageService,
-    private store: Store<fromRoot.AppState>
+    private readonly dataStorageService: RecipesDataStorageService,
+    private store: Store<fromAuth.State>
   ) {
     super();
   }
 
   ngOnInit(): void {
-    this.store.select('auth')
+    this.store.select(fromAuth.getUser)
       .pipe(
-        map(authState => authState.user),
         takeUntil(this.alive$)
       )
       .subscribe(user => {
@@ -35,6 +34,6 @@ export class HeaderComponent extends BaseComponent implements OnInit {
   }
 
   onLogout(): void {
-    this.store.dispatch(new AuthActions.Logout());
+    this.store.dispatch(AuthActions.logout());
   }
 }

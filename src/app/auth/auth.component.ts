@@ -5,9 +5,9 @@ import { AlertComponent } from '../shared/alert/alert.component';
 import { PlaceholderDirective } from '../shared/placeholder/placeholder.directive';
 import { Store } from '@ngrx/store';
 import * as AuthActions from './store/auth.actions';
-import * as fromRoot from '../store/app.reducer';
 import { takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../shared/BaseComponent';
+import { fromAuth } from './store';
 
 @Component({
   selector: 'app-auth',
@@ -24,13 +24,13 @@ export class AuthComponent extends BaseComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly componentFactoryResolver: ComponentFactoryResolver,
-    private readonly store: Store<fromRoot.AppState>
+    private readonly store: Store<fromAuth.State>
   ) {
     super();
   }
 
   ngOnInit(): void {
-    this.store.select('auth')
+    this.store.select(fromAuth.selectAuthState)
       .pipe(
         takeUntil(this.alive$)
       )
@@ -61,16 +61,16 @@ export class AuthComponent extends BaseComponent implements OnInit, OnDestroy {
 
     const credentials = { email: form.value.email, password: form.value.password };
     if (this.isLoginMode) {
-      this.store.dispatch(new AuthActions.LoginStart(credentials));
+      this.store.dispatch(AuthActions.loginStart(credentials));
     } else {
-      this.store.dispatch(new AuthActions.SignUpStart(credentials));
+      this.store.dispatch(AuthActions.signUpStart(credentials));
     }
 
     form.reset();
   }
 
   private clearError(): void {
-    this.store.dispatch(new AuthActions.ClearError());
+    this.store.dispatch(AuthActions.clearError());
     this.alertHost.viewContainerRef.clear();
   }
 

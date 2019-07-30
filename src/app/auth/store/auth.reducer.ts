@@ -1,65 +1,87 @@
 import { User } from '../user.model';
 import * as AuthActions from './auth.actions';
+import { fromRoot } from '../../store';
+import { Action, createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
 
-export interface State {
+export const authFeatureKey = 'auth';
+
+export interface AuthState {
   user: User | undefined;
   authError: string | undefined;
   loading: boolean;
 }
 
-const initialState: State = {
+export interface State extends fromRoot.AppState {
+  [authFeatureKey]: AuthState;
+}
+
+const initialState: AuthState = {
   user: undefined,
   authError: undefined,
   loading: false
 };
 
-export function authReducer(state: State = initialState, action: AuthActions.Actions): State {
-  switch (action.type) {
-    case AuthActions.AuthActions.LOGIN_START:
-      return {
-        ...state,
-        authError: undefined,
-        loading: true
-      };
+const authReducer = createReducer(initialState,
+  on(AuthActions.loginStart, (state) => {
+    return {
+      ...state,
+      authError: undefined,
+      loading: true
+    };
+  }),
 
-    case AuthActions.AuthActions.SIGN_UP_START:
-      return {
-        ...state,
-        authError: undefined,
-        loading: true
-      };
+  on(AuthActions.signUpStart, (state) => {
+    return {
+      ...state,
+      authError: undefined,
+      loading: true
+    };
+  }),
 
-    case AuthActions.AuthActions.AUTHENTICATE_SUCCESS:
-      return {
-        ...state,
-        user: action.payload.user,
-        authError: undefined,
-        loading: false
-      };
+  on(AuthActions.authenticateSuccess, (state, { user }) => {
+    return {
+      ...state,
+      user,
+      authError: undefined,
+      loading: false
+    };
+  }),
 
-    case AuthActions.AuthActions.AUTHENTICATE_FAIL:
-      return {
-        ...state,
-        user: undefined,
-        authError: action.payload.message,
-        loading: false
-      };
+  on(AuthActions.authenticateFail, (state, { message }) => {
+    return {
+      ...state,
+      user: undefined,
+      authError: message,
+      loading: false
+    };
+  }),
 
-    case AuthActions.AuthActions.LOGOUT:
-      console.log('Handle Logout action');
-      return {
-        ...state,
-        user: undefined
-      };
+  on(AuthActions.logout, (state) => {
+    return {
+      ...state,
+      user: undefined
+    };
+  }),
 
-    case AuthActions.AuthActions.CLEAR_ERROR:
-      return {
-        ...state,
-        authError: undefined
-      };
+  on(AuthActions.clearError, (state) => {
+    return {
+      ...state,
+      authError: undefined
+    };
+  })
+);
 
-    default:
-      return state;
-
-  }
+export function reducer(state: AuthState | undefined, action: Action): AuthState {
+  return authReducer(state, action);
 }
+
+export const selectAuthState = createFeatureSelector<AuthState>(authFeatureKey);
+export const getIsLoading = createSelector(
+  selectAuthState,
+  state => state.loading
+);
+
+export const getUser = createSelector(
+  selectAuthState,
+  state => state ? state.user : undefined
+);

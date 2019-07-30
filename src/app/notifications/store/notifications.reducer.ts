@@ -1,7 +1,7 @@
-import * as fromRoot from '../../store/app.reducer';
 import { NotifyItem } from '../models/notify-item';
 import { Action, createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
 import * as NotificationsActions from './notifications.actions';
+import { fromRoot } from '../../store';
 
 export const notificationsFeatureKey = 'notifications';
 
@@ -15,24 +15,24 @@ export interface State extends fromRoot.AppState {
 
 const initialState: NotificationsState = {
   messages: [
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description'),
-    new NotifyItem('Test notification 1 with long long long description'),
-    new NotifyItem('Test notification 2 with very very long description')
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description'),
+    // new NotifyItem('Test notification 1 with long long long description'),
+    // new NotifyItem('Test notification 2 with very very long description')
   ]
 };
 

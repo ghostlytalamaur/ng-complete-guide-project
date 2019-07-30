@@ -1,61 +1,34 @@
-import { Action } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
 import { User } from '../user.model';
 
-export enum AuthActions {
-  LOGIN_START = '[Auth] Login start',
-  AUTHENTICATE_SUCCESS = '[Auth] Login',
-  AUTHENTICATE_FAIL = '[Auth] Login failed',
-  SIGN_UP_START = '[Auth] SignUp start',
-  LOGOUT = '[Auth] Logout',
-  CLEAR_ERROR = '[Auth] Clear error',
-  AUTO_LOGIN = '[Auth] Auto login'
-}
+export const authenticateSuccess = createAction(
+  '[Auth] Login',
+  props<{ user: User, redirect: boolean }>()
+);
 
-export class AuthenticateSuccess implements Action {
-  readonly type = AuthActions.AUTHENTICATE_SUCCESS;
+export const logout = createAction(
+  '[Auth] Logout'
+);
 
-  constructor(public readonly payload: { user: User, redirect: boolean }) {
-  }
-}
+export const loginStart = createAction(
+  '[Auth] Login Start',
+  props<{ email: string, password: string }>()
+);
 
-export class Logout implements Action {
-  readonly type = AuthActions.LOGOUT;
-}
+export const authenticateFail = createAction(
+  '[Auth] Login Failed',
+  props<{ message: string }>()
+);
 
-export class LoginStart implements Action {
-  readonly type = AuthActions.LOGIN_START;
+export const signUpStart = createAction(
+  '[Auth] Sign Up Start',
+  props<{ email: string, password: string }>()
+);
 
-  constructor(public readonly payload: { email: string, password: string }) {
-  }
-}
+export const clearError = createAction(
+  '[Auth] Clear Error'
+);
 
-export class AuthenticateFail implements Action {
-  readonly type = AuthActions.AUTHENTICATE_FAIL;
-
-  constructor(public payload: { message: string }) {
-  }
-}
-
-export class SignUpStart implements Action {
-  readonly type = AuthActions.SIGN_UP_START;
-
-  constructor(public readonly payload: { email: string, password: string }) {
-  }
-}
-
-export class ClearError implements Action {
-  readonly type = AuthActions.CLEAR_ERROR;
-}
-
-export class AutoLogin implements Action {
-  readonly type = AuthActions.AUTO_LOGIN;
-}
-
-export type Actions =
-  AuthenticateSuccess |
-  Logout |
-  LoginStart |
-  SignUpStart |
-  AuthenticateFail |
-  ClearError |
-  AutoLogin;
+export const autoLogin = createAction(
+  '[Auth] Auto Login'
+);

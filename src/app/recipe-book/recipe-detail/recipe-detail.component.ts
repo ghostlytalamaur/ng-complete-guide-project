@@ -39,7 +39,7 @@ export class RecipeDetailComponent extends BaseComponent implements OnInit {
 
   onAddToShoppingList(): void {
     if (this.recipe) {
-      this.store.dispatch(new IngredientsActions.AddIngredients([...this.recipe.ingredients]));
+      this.store.dispatch(IngredientsActions.addIngredients({ ingredients: [...this.recipe.ingredients] }));
     }
   }
 

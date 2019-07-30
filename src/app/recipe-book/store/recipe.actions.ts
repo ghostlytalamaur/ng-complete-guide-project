@@ -25,10 +25,6 @@ export const fetchRecipes = createAction(
   '[Recipes] Fetch Recipes'
 );
 
-export const storeRecipes = createAction(
-  '[Recipes] Store Recipes'
-);
-
 export const storeCompleted = createAction(
   '[Recipes] Store Completed'
 );
