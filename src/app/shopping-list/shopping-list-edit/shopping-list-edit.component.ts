@@ -29,7 +29,6 @@ export class ShoppingListEditComponent extends BaseComponent implements OnInit, 
     super();
   }
 
-  // @Input('ingredient')
   set ingredient(ingredient: Ingredient | undefined) {
     console.log('[ShoppingListEditComponent] set ingredient', ingredient);
     if (this.form && ingredient) {

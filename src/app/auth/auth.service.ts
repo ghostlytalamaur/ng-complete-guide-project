@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { User } from './user.model';
-import { Store } from '@ngrx/store';
-import * as AuthActions from './store/auth.actions';
-import { fromAuth } from './store';
-import Timer = NodeJS.Timer;
+import { createUser, User } from './user.model';
 
 const API_KEY = 'AIzaSyBrVa7gZgOU1okS3wVLUiC38_LWrrog1IE';
 const SIGN_UP_ENDPOINT = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
@@ -30,11 +26,9 @@ interface LoginResponseData extends SignUpResponseData {
 })
 export class AuthService {
 
-  private tokenExpirationTimer: Timer | undefined;
 
   constructor(
-    private readonly http: HttpClient,
-    private readonly store: Store<fromAuth.State>
+    private readonly http: HttpClient
   ) {
   }
 
@@ -60,7 +54,7 @@ export class AuthService {
 
   private static createUser(userId: string, email: string, token: string, expiresIn: number): User {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
-    return new User(userId, email, token, expirationDate);
+    return createUser(userId, email, token, expirationDate.toString());
   }
 
   signUp(email: string, password: string): Observable<User> {
@@ -82,22 +76,4 @@ export class AuthService {
         catchError(errRes => AuthService.handleError<User>(errRes))
       );
   }
-
-  clearAutoLogoutTimer(): void {
-    if (this.tokenExpirationTimer) {
-      clearTimeout(this.tokenExpirationTimer);
-      this.tokenExpirationTimer = undefined;
-    }
-  }
-
-  autoLogout(expirationDuration: number): void {
-    this.clearAutoLogoutTimer();
-    if (expirationDuration > 0) {
-      this.tokenExpirationTimer = setTimeout(() => {
-        this.clearAutoLogoutTimer();
-        this.store.dispatch(AuthActions.logout());
-      }, expirationDuration);
-    }
-  }
-
 }

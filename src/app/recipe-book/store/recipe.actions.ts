@@ -33,3 +33,8 @@ export const storeFailed = createAction(
   '[Recipes] Store Failed',
   props<{ message: string }>()
 );
+
+export const fetchFailed = createAction(
+  '[Recipes] Fetch Failed',
+  props<{ message: string }>()
+);

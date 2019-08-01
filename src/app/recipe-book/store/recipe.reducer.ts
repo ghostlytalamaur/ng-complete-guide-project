@@ -8,6 +8,8 @@ export const recipesFeatureKey = 'recipes';
 export interface RecipesState {
   recipes: Recipe[];
   storageError: string | undefined;
+  loaded: boolean;
+  fetchError: string | undefined;
 }
 
 export interface State extends fromRoot.AppState {
@@ -16,14 +18,19 @@ export interface State extends fromRoot.AppState {
 
 const initialState: RecipesState = {
   recipes: [],
-  storageError: undefined
+  storageError: undefined,
+  loaded: false,
+  fetchError: undefined
 };
 
 const recipeReducer = createReducer<RecipesState>(initialState,
   on(RecipeActions.setRecipes, (state, { recipes }) => {
+    console.log('Set recipes');
     return {
       ...state,
-      recipes: recipes.slice()
+      recipes: recipes.slice(),
+      loaded: true,
+      fetchError: undefined
     };
   }),
 
@@ -70,6 +77,23 @@ const recipeReducer = createReducer<RecipesState>(initialState,
       ...state,
       storageError: message
     };
+  }),
+
+  on(RecipeActions.fetchRecipes, (state) => {
+    console.log('Fetch recipes');
+    return {
+      ...state,
+      fetchError: undefined,
+      loaded: false
+    };
+  }),
+
+  on(RecipeActions.fetchFailed, (state, { message }) => {
+    return {
+      ...state,
+      fetchError: message,
+      loaded: false
+    };
   })
 );
 
@@ -79,12 +103,22 @@ export function reducers(state: RecipesState | undefined, action: Action): Recip
 
 export const selectRecipesState = createFeatureSelector<RecipesState>(recipesFeatureKey);
 
-export const selectRecipes = createSelector(
+export const getRecipes = createSelector(
   selectRecipesState,
   (state) => state.recipes
 );
 
-export const selectRecipe = (id: string) => createSelector(
-  selectRecipes,
+export const getRecipe = (id: string) => createSelector(
+  getRecipes,
   recipes => recipes.find(r => r.id === id)
+);
+
+export const getFetchError = createSelector(
+  selectRecipesState,
+  state => state.fetchError
+);
+
+export const getIsLoaded = createSelector(
+  selectRecipesState,
+  state => state.loaded
 );

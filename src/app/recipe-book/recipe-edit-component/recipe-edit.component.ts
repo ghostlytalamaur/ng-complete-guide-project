@@ -6,9 +6,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Recipe } from '../models/recipe';
 import { Ingredient } from '../../shared/models/ingredient';
 import * as uuid from 'uuid';
-import * as fromRecipes from '../store/recipe.reducer';
-import * as RecipesActions from '../store/recipe.actions';
-import { Store } from '@ngrx/store';
+import { RecipesService } from '../services/recipes.service';
 
 function getProp<T, K extends keyof T>(obj: T | undefined, prop: K, def: T[K]): T[K] {
   return obj && obj[prop] || def;
@@ -28,7 +26,7 @@ export class RecipeEditComponent extends BaseComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private readonly store: Store<fromRecipes.State>
+    private readonly service: RecipesService
   ) {
     super();
   }
@@ -45,7 +43,7 @@ export class RecipeEditComponent extends BaseComponent implements OnInit {
   ngOnInit(): void {
     this.route.params
       .pipe(
-        switchMap((params: Params) => this.store.select(fromRecipes.selectRecipe(params.id))),
+        switchMap((params: Params) => this.service.getRecipe(params.id)),
         takeUntil(this.alive$)
       )
       .subscribe((recipe: Recipe) => {
@@ -67,9 +65,9 @@ export class RecipeEditComponent extends BaseComponent implements OnInit {
     console.log('New recipe', newRecipe);
     const wasEditMode = this.editMode;
     if (this.editMode) {
-      this.store.dispatch(RecipesActions.updateRecipe({ recipe: newRecipe }));
+      this.service.updateRecipe(newRecipe);
     } else {
-      this.store.dispatch(RecipesActions.addRecipe({ recipe: newRecipe }));
+      this.service.addRecipe(newRecipe);
     }
 
     if (wasEditMode) {

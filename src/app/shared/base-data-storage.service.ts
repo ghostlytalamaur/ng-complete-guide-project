@@ -27,7 +27,7 @@ export class BaseDataStorageService<T extends DataStorageItem> {
     let errorMessage = '';
     switch (errRes.status) {
       case 401:
-        errorMessage = 'Unauthorized.';
+        errorMessage = 'Not Authorized.';
         break;
       case 404:
         errorMessage = 'Database was not found';
@@ -46,8 +46,13 @@ export class BaseDataStorageService<T extends DataStorageItem> {
     return throwError(new Error(errorMessage));
   }
 
-  private static getItemUrl(itemId: string): string {
-    return `${ENDPOINT}/${itemId}.json`;
+  update(item: T | Partial<T> & { id: string }): Observable<void> {
+    return this.http.patch(this.getItemUrl(item.id), item)
+      .pipe(
+        map(() => {
+        }),
+        catchError(errRes => BaseDataStorageService.handleErrorResponse<void>(errRes))
+      );
   }
 
   put(items: T[]): Observable<void> {
@@ -80,8 +85,8 @@ export class BaseDataStorageService<T extends DataStorageItem> {
       );
   }
 
-  update(item: T | Partial<T> & { id: string }): Observable<void> {
-    return this.http.patch(BaseDataStorageService.getItemUrl(item.id), item)
+  delete(itemId: string): Observable<void> {
+    return this.http.delete(this.getItemUrl(itemId))
       .pipe(
         map(() => {
         }),
@@ -89,13 +94,8 @@ export class BaseDataStorageService<T extends DataStorageItem> {
       );
   }
 
-  delete(itemId: string): Observable<void> {
-    return this.http.delete(BaseDataStorageService.getItemUrl(itemId))
-      .pipe(
-        map(() => {
-        }),
-        catchError(errRes => BaseDataStorageService.handleErrorResponse<void>(errRes))
-      );
+  private getItemUrl(itemId: string): string {
+    return `${ENDPOINT}/${this.collectionName}/${itemId}.json`;
   }
 
   private getUrl(): string {

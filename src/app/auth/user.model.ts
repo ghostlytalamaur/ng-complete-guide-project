@@ -1,22 +1,10 @@
-export class User {
+export interface User {
+  readonly id: string;
+  readonly email: string;
+  readonly token: string;
+  readonly tokenExpirationDate: string;
+}
 
-  constructor(
-    public readonly id: string,
-    public readonly email: string,
-    private readonly mToken: string,
-    private readonly mTokenExpirationDate: Date
-  ) {}
-
-
-  get token(): string | null {
-    if (!this.mTokenExpirationDate || new Date() > this.mTokenExpirationDate) {
-      return null;
-    }
-    return this.mToken;
-  }
-
-  getTokenExpirationDuration(): number {
-    return this.mTokenExpirationDate.getTime() - new Date().getTime();
-  }
-
+export function createUser(id: string, email: string, token: string, tokenExpirationDate: string): User {
+  return { id, email, token, tokenExpirationDate };
 }

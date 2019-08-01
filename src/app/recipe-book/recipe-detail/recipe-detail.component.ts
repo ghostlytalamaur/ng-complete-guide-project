@@ -3,10 +3,7 @@ import { Recipe } from '../models/recipe';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
-import { Store } from '@ngrx/store';
-import * as fromRecipes from '../store/recipe.reducer';
-import * as RecipeActions from '../store/recipe.actions';
-import * as IngredientsActions from '../../shopping-list/store/shopping-list.actions';
+import { RecipesService } from '../services/recipes.service';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -21,7 +18,7 @@ export class RecipeDetailComponent extends BaseComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private readonly store: Store<fromRecipes.State>
+    private readonly service: RecipesService
   ) {
     super();
   }
@@ -29,7 +26,7 @@ export class RecipeDetailComponent extends BaseComponent implements OnInit {
   ngOnInit(): void {
     this.route.params
       .pipe(
-        switchMap(params => this.store.select(fromRecipes.selectRecipe(params.id))),
+        switchMap(params => this.service.getRecipe(params.id)),
         takeUntil(this.alive$)
       )
       .subscribe(
@@ -39,13 +36,13 @@ export class RecipeDetailComponent extends BaseComponent implements OnInit {
 
   onAddToShoppingList(): void {
     if (this.recipe) {
-      this.store.dispatch(IngredientsActions.addIngredients({ ingredients: [...this.recipe.ingredients] }));
+      this.service.addIngredientsToShoppingList(...this.recipe.ingredients);
     }
   }
 
   onDeleteRecipe(): void {
     if (this.recipe) {
-      this.store.dispatch(RecipeActions.deleteRecipe({ recipeId: this.recipe.id }));
+      this.service.deleteRecipe(this.recipe.id);
       this.router.navigate(['../'], {relativeTo: this.route})
         .catch(console.log);
     }

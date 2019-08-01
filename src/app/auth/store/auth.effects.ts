@@ -6,8 +6,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Action } from '@ngrx/store';
-import { User } from '../user.model';
+import { Action, Store } from '@ngrx/store';
+import { createUser, User } from '../user.model';
+import { fromAuth } from './index';
 
 @Injectable()
 export class AuthEffects implements OnInitEffects {
@@ -58,12 +59,14 @@ export class AuthEffects implements OnInitEffects {
         ),
     { dispatch: false }
   );
+  private tokenExpirationTimer: any;
 
   constructor(
     private readonly actions$: Actions,
     private readonly http: HttpClient,
     private readonly router: Router,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly store: Store<fromAuth.State>
   ) {
     console.log('constructing AuthEffects');
   }
@@ -78,30 +81,37 @@ export class AuthEffects implements OnInitEffects {
 
   private static loadUser(): User | undefined {
     const userDataStr = localStorage.getItem('user');
-    const userData: {
-      email: string,
-      id: string,
-      mToken: string,
-      mTokenExpirationDate: string
-    } = userDataStr ? JSON.parse(userDataStr) : null;
+    const userData: User = userDataStr ? JSON.parse(userDataStr) : null;
 
     if (!userData) {
       return undefined;
     }
-    const expirationDate = new Date(userData.mTokenExpirationDate);
-    if (userData.mToken) {
-      return new User(userData.id, userData.email, userData.mToken, expirationDate);
+    if (userData.token) {
+      return createUser(userData.id, userData.email, userData.token, userData.tokenExpirationDate);
     }
   }
 
-  private handleAutoLogin(): Action {
-    const user = AuthEffects.loadUser();
-    if (user) {
-      this.authService.autoLogout(user.getTokenExpirationDuration());
-      return AuthActions.authenticateSuccess({ user, redirect: false });
-    } else {
-      return { type: 'DUMMY' };
+  clearAutoLogoutTimer(): void {
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+      this.tokenExpirationTimer = undefined;
     }
+  }
+
+  autoLogout(user: User): void {
+    const expirationDuration = new Date(user.tokenExpirationDate).getTime() - new Date().getTime();
+    this.clearAutoLogoutTimer();
+    if (expirationDuration > 0) {
+      this.tokenExpirationTimer = setTimeout(() => {
+        this.clearAutoLogoutTimer();
+        this.store.dispatch(AuthActions.logout());
+      }, expirationDuration);
+    }
+  }
+
+  ngrxOnInitEffects(): Action {
+    console.log('dispatch autoLogin');
+    return AuthActions.autoLogin();
   }
 
   private login(email: string, password: string): Observable<Action> {
@@ -112,12 +122,22 @@ export class AuthEffects implements OnInitEffects {
     return this.handleAuthenticate(this.authService.signUp(email, password));
   }
 
+  private handleAutoLogin(): Action {
+    const user = AuthEffects.loadUser();
+    if (user) {
+      this.autoLogout(user);
+      return AuthActions.authenticateSuccess({ user, redirect: false });
+    } else {
+      return { type: 'DUMMY' };
+    }
+  }
+
   private handleAuthenticate(user$: Observable<User>): Observable<Action> {
     return user$
       .pipe(
         tap(user => {
           AuthEffects.storeUser(user);
-          this.authService.autoLogout(user.getTokenExpirationDuration());
+          this.autoLogout(user);
         }),
         map(user => AuthActions.authenticateSuccess({ user, redirect: true })),
         catchError((err: Error) => of(AuthActions.authenticateFail({ message: err.message })))
@@ -125,15 +145,10 @@ export class AuthEffects implements OnInitEffects {
   }
 
   private onLogout(): void {
-    this.authService.clearAutoLogoutTimer();
+    this.clearAutoLogoutTimer();
     AuthEffects.storeUser(undefined);
     this.router.navigate(['/auth'])
       .catch(console.log);
-  }
-
-  ngrxOnInitEffects(): Action {
-    console.log('dispatch autoLogin');
-    return AuthActions.autoLogin();
   }
 
 }

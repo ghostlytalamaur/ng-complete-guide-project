@@ -1,6 +1,6 @@
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as RecipeActions from './recipe.actions';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { RecipesDataStorageService } from '../services/recipes-data-storage.service';
 import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
@@ -14,10 +14,13 @@ export class RecipeEffects {
     this.actions$
       .pipe(
         ofType(RecipeActions.fetchRecipes),
-        switchMap(() => this.dataStorage.get()),
-        tap(recipes => console.log('Recipes', recipes)),
-        map(recipes => RecipeActions.setRecipes({ recipes })),
-        catchError((err: Error) => of(NotificationsActions.addNotification({ message: `Cannot load recipes\n${err.message}` })))
+        switchMap(() => {
+          return this.dataStorage.get()
+            .pipe(
+              map(recipes => RecipeActions.setRecipes({ recipes })),
+              catchError((err: Error) => of(RecipeActions.fetchFailed({ message: `Cannot load recipes\n${err.message}` })))
+            );
+        })
       )
   );
 
