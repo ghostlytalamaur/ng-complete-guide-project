@@ -30,6 +30,8 @@ export class Ingredient {
   }
 }
 
+export type PartialIngredient = { id: string } & Partial<Ingredient>;
+
 export function findIngredientIndex(ingredients: Ingredient[], name: string): number {
   if (!ingredients || !name) {
     return -1;
