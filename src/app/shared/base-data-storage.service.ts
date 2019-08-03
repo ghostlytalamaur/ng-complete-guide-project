@@ -1,10 +1,9 @@
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, zip } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
-const ENDPOINT = 'https://ng-complete-guide-projec-84903.firebaseio.com';
-
-interface DataStorageItem {
+export interface DataStorageItem {
   id: string;
 }
 
@@ -39,11 +38,24 @@ export class BaseDataStorageService<T extends DataStorageItem> {
         errorMessage = 'Service Unavailable';
         break;
       default:
+        console.log(errRes);
         errorMessage = 'Unknown error occurs during update recipe';
         break;
     }
 
     return throwError(new Error(errorMessage));
+  }
+
+  updateAll(...items: (T | Partial<T> & { id: string })[]): Observable<void> {
+    const observables: Observable<void>[] = [];
+    for (const item of items) {
+      observables.push(this.update(item));
+    }
+    return zip(...observables)
+      .pipe(
+        map(() => {
+        })
+      );
   }
 
   update(item: T | Partial<T> & { id: string }): Observable<void> {
@@ -74,10 +86,12 @@ export class BaseDataStorageService<T extends DataStorageItem> {
       .pipe(
         map((data: DataStorageCollection<T>) => {
           const items: T[] = [];
-          for (const id of Object.keys(data)) {
-            const itemData = data[id];
-            const item = this.itemFactory(itemData);
-            items.push(item);
+          if (data) {
+            for (const id of Object.keys(data)) {
+              const itemData = data[id];
+              const item = this.itemFactory(itemData);
+              items.push(item);
+            }
           }
           return items;
         }),
@@ -95,10 +109,10 @@ export class BaseDataStorageService<T extends DataStorageItem> {
   }
 
   private getItemUrl(itemId: string): string {
-    return `${ENDPOINT}/${this.collectionName}/${itemId}.json`;
+    return `${environment.firebase.endpoint}/${this.collectionName}/${itemId}.json`;
   }
 
   private getUrl(): string {
-    return `${ENDPOINT}/${this.collectionName}.json`;
+    return `${environment.firebase.endpoint}/${this.collectionName}.json`;
   }
 }

@@ -29,3 +29,17 @@ export const startEdit = createAction(
 export const stopEdit = createAction(
   '[Shopping List] Stop Edit'
 );
+
+export const fetchIngredients = createAction(
+  '[Shopping List] Fetch Ingredients'
+);
+
+export const fetchFailed = createAction(
+  '[Shopping List] Fetch Failed',
+  props<{ message: string }>()
+);
+
+export const setIngredients = createAction(
+  '[Shopping List] Set Ingredients',
+  props<{ ingredients: Ingredient[] }>()
+);

@@ -3,10 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { createUser, User } from './user.model';
-
-const API_KEY = 'AIzaSyBrVa7gZgOU1okS3wVLUiC38_LWrrog1IE';
-const SIGN_UP_ENDPOINT = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
-const SIGN_IN_ENDPOINT = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+import { environment } from '../../environments/environment';
 
 interface SignUpResponseData {
   kind: string;         // string	The request type, always "identitytoolkit#SignupNewUserResponse".
@@ -58,7 +55,7 @@ export class AuthService {
   }
 
   signUp(email: string, password: string): Observable<User> {
-    return this.http.post<SignUpResponseData>(SIGN_UP_ENDPOINT,
+    return this.http.post<SignUpResponseData>(environment.firebase.signUpEndpoint,
       { email, password, returnSecureToken: true }
     )
       .pipe(
@@ -68,7 +65,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<User> {
-    return this.http.post<LoginResponseData>(SIGN_IN_ENDPOINT,
+    return this.http.post<LoginResponseData>(environment.firebase.signInEndpoint,
       { email, password, returnSecureToken: true }
     )
       .pipe(

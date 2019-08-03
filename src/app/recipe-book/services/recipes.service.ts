@@ -6,8 +6,8 @@ import * as fromRecipes from '../store/recipe.reducer';
 import { getIsLoaded } from '../store/recipe.reducer';
 import * as RecipeActions from '../store/recipe.actions';
 import { Ingredient } from '../../shared/models/ingredient';
-import * as IngredientsActions from '../../shopping-list/store/shopping-list.actions';
 import { take } from 'rxjs/operators';
+import { IngredientsService } from '../../shopping-list/services/ingredients.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,8 @@ import { take } from 'rxjs/operators';
 export class RecipesService {
 
   constructor(
-    private readonly store: Store<fromRecipes.State>
+    private readonly store: Store<fromRecipes.State>,
+    private readonly ingredientsService: IngredientsService
   ) {
   }
 
@@ -40,7 +41,7 @@ export class RecipesService {
   }
 
   addIngredientsToShoppingList(...ingredients: Ingredient[]): void {
-    this.store.dispatch(IngredientsActions.addIngredients({ ingredients }));
+    this.ingredientsService.addIngredients(...ingredients);
   }
 
   getIsLoaded(): Observable<boolean> {

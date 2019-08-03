@@ -6,6 +6,7 @@ import { User } from './user.model';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../store/app.reducer';
 import { fromAuth } from './store';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
@@ -13,14 +14,16 @@ export class AuthInterceptorService implements HttpInterceptor {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.includes('https://ng-complete-guide-projec-84903.firebaseio.com')) {
+    if (req.url.includes(environment.firebase.endpoint)) {
       return this.store.select(fromAuth.getUser)
         .pipe(
           take(1),
           switchMap((user: User) => {
             if (user && user.token) {
+              const newUrl = environment.firebase.endpoint + `/users/${user.id}` + req.url.substr(environment.firebase.endpoint.length);
               const params = req.params.set('auth', user.token);
               const newReq = req.clone({
+                url: newUrl,
                 params
               });
               return next.handle(newReq);

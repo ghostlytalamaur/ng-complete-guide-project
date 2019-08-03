@@ -35,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
     NgbCollapseModule,
 
     StoreModule.forRoot(fromApp.appReducer, {
+      metaReducers: [fromApp.clearStateOnLogout],
       runtimeChecks: {
         strictStateImmutability: true,
         strictActionImmutability: true,

@@ -3,6 +3,7 @@ import { Ingredient, PartialIngredient } from '../../shared/models/ingredient';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { fromShoppingList, ShoppingListActions } from '../store';
+import { take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,20 @@ export class IngredientsService {
     private readonly store: Store<fromShoppingList.State>
   ) {
     console.log('constructing IngredientsService');
+  }
+
+  loadIngredients(): void {
+    this.store.select(fromShoppingList.getIsLoaded)
+      .pipe(
+        take(1)
+      )
+      .subscribe(
+        isLoaded => {
+          if (!isLoaded) {
+            this.store.dispatch(ShoppingListActions.fetchIngredients());
+          }
+        }
+      );
   }
 
   getIngredients(): Observable<Ingredient[]> {
@@ -39,4 +54,23 @@ export class IngredientsService {
     this.store.dispatch(ShoppingListActions.addIngredients({ ingredients }));
   }
 
+  getSelectedIngredient(): Observable<Ingredient | undefined> {
+    return this.store.select(fromShoppingList.getEditedIngredient);
+  }
+
+  selectIngredient(id: string): void {
+    this.store.dispatch(ShoppingListActions.startEdit({ id }));
+  }
+
+  clearSelection(): void {
+    this.store.dispatch(ShoppingListActions.stopEdit());
+  }
+
+  getIsLoaded(): Observable<boolean> {
+    return this.store.select(fromShoppingList.getIsLoaded);
+  }
+
+  getError(): Observable<string | undefined> {
+    return this.store.select(fromShoppingList.getError);
+  }
 }

@@ -1,6 +1,5 @@
 import { findIngredient, Ingredient } from '../../shared/models/ingredient';
 import * as ShoppingListActions from './shopping-list.actions';
-import * as uuid from 'uuid';
 import { Action, createFeatureSelector, createReducer, createSelector, on } from '@ngrx/store';
 import { fromRoot } from '../../store';
 
@@ -8,6 +7,8 @@ export const shoppingListKey = 'shoppingList';
 
 export interface ShoppingListState {
   ingredients: Ingredient[];
+  loaded: boolean;
+  error: string | undefined;
   editedIngredientId: string | undefined;
 }
 
@@ -16,10 +17,9 @@ export interface State extends fromRoot.AppState {
 }
 
 const initialState: ShoppingListState = {
-  ingredients: [
-    new Ingredient(uuid.v4(), 'Cheese', 1),
-    new Ingredient(uuid.v4(), 'Bacon', 1)
-  ],
+  ingredients: [],
+  loaded: false,
+  error: undefined,
   editedIngredientId: undefined
 };
 
@@ -60,6 +60,15 @@ const shoppingListReducer = createReducer(initialState,
     };
   }),
 
+  on(ShoppingListActions.setIngredients, (state, { ingredients }) => {
+    return {
+      ...state,
+      ingredients: ingredients.slice(),
+      loaded: true,
+      error: undefined
+    };
+  }),
+
   on(ShoppingListActions.startEdit, (state, { id }) => {
     return {
       ...state,
@@ -71,6 +80,22 @@ const shoppingListReducer = createReducer(initialState,
     return {
       ...state,
       editedIngredientId: undefined
+    };
+  }),
+
+  on(ShoppingListActions.fetchIngredients, (state) => {
+    return {
+      ...state,
+      loaded: false,
+      error: undefined
+    };
+  }),
+
+  on(ShoppingListActions.fetchFailed, (state, { message }) => {
+    return {
+      ...state,
+      loaded: false,
+      error: message
     };
   })
 );
@@ -100,3 +125,14 @@ export const getIngredient = (name: string) =>
     getIngredients,
     ingredients => findIngredient(ingredients, name)
   );
+
+export const getIsLoaded = createSelector(
+  selectShoppingListState,
+  state => state.loaded
+);
+
+
+export const getError = createSelector(
+  selectShoppingListState,
+  state => state.error
+);

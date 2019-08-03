@@ -3,11 +3,8 @@ import { Ingredient } from '../../shared/models/ingredient';
 import { IngredientsService } from '../services/ingredients.service';
 import { takeUntil } from 'rxjs/operators';
 import { BaseComponent } from '../../shared/BaseComponent';
-import { Store } from '@ngrx/store';
-import * as ShoppingListActions from '../store/shopping-list.actions';
 import { animate, group, keyframes, state, style, transition, trigger } from '@angular/animations';
-import { fromShoppingList } from '../store';
-import { selectShoppingListState } from '../store/shopping-list.reducer';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-shopping-list',
@@ -88,24 +85,44 @@ import { selectShoppingListState } from '../store/shopping-list.reducer';
 })
 export class ShoppingListComponent extends BaseComponent implements OnInit {
 
-  state: fromShoppingList.ShoppingListState;
+  ingredients$: Observable<Ingredient[]>;
+  selectedIngredient: Ingredient | undefined;
+  isLoaded = false;
+  error: string | undefined;
 
   constructor(
     private readonly ingredientsService: IngredientsService,
-    private store: Store<fromShoppingList.State>
   ) {
     super();
+    this.ingredients$ = this.ingredientsService.getIngredients();
   }
 
   ngOnInit(): void {
-    this.store.select(selectShoppingListState)
+    this.ingredientsService.loadIngredients();
+    this.ingredientsService.getSelectedIngredient()
       .pipe(
         takeUntil(this.alive$)
       )
-      .subscribe(s => this.state = s);
+      .subscribe(ingredient => this.selectedIngredient = ingredient);
+
+    this.ingredientsService.getIsLoaded()
+      .pipe(
+        takeUntil(this.alive$)
+      )
+      .subscribe(isLoaded => this.isLoaded = isLoaded);
+
+    this.ingredientsService.getError()
+      .pipe(
+        takeUntil(this.alive$)
+      )
+      .subscribe(message => this.error = message);
   }
 
   onSelectIngredient(ingredient: Ingredient): void {
-    this.store.dispatch(ShoppingListActions.startEdit({ id: ingredient.id }));
+    this.ingredientsService.selectIngredient(ingredient.id);
+  }
+
+  onRefresh(): void {
+    this.ingredientsService.loadIngredients();
   }
 }
